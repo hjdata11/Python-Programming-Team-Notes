@@ -24,3 +24,6 @@ print(8, end=" ")
 #f-string 예제
 answer = 7
 print(f"정답은 {answer}입니다.")
+
+number = 2.341
+print(f'{number:.2f}')
