@@ -1,4 +1,3 @@
-
 # 두 배열의 원소 교체
 
 N = 5
@@ -11,9 +10,9 @@ A.sort()
 B.sort(reverse=True)
 
 for i in range(K):
-  if A[i] < B[i]:
-    A[i], B[i] = B[i], A[i]
-  else:
-    break
+    if A[i] < B[i]:
+        A[i], B[i] = B[i], A[i]
+    else:
+        break
 
 print(sum(A))
