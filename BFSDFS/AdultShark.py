@@ -1,77 +1,100 @@
 
-# https://www.acmicpc.net/problem/19236
+# https://www.acmicpc.net/problem/19237
 
 import sys
 sys.stdin = open("input.txt", 'r')
 input = sys.stdin.readline
-from copy import deepcopy
 
-data = [ [None]*4 for _ in range(4) ]
-result = 0
+n, m, k = map(int, input().split())
 
-dx = [-1, -1, 0, 1, 1, 1, 0, -1]
-dy = [0, -1, -1, -1, 0, 1, 1, 1]
+dx = [-1, 1, 0, 0]
+dy = [0, 0, -1, 1]
 
-for i in range(4):
-    tmp = list(map(int, input().split()))
+array = [ list(map(int, input().split())) for _ in range(n) ]
+directions = list(map(int, input().split()))
+
+priorities = [[] for _ in range(m)]
+for i in range(m):
     for j in range(4):
-        data[i][j] = [tmp[j*2], tmp[j*2+1]-1]
+        priorities[i].append(list(map(int, input().split())))
 
-def rotate(direction):
-    return (direction + 1) % 8
+# [상어 번호, 남은 시간]
+smell = [[[0,0]] * n  for _ in range(n)]
 
-def find_fish(tmp_data, v):
-    for i in range(4):
-        for j in range(4):
-            if tmp_data[i][j][0] == v:
-                return [i, j]
-    return None
+def update_smell():
 
-def move_fish(tmp_data, now_x, now_y):
+    for i in range(n):
+        for j in range(n):
 
-    for v in range(1, 17):
-        position = find_fish(tmp_data, v)
-        if position != None:
-            x, y = position[0], position[1]
-            direction = tmp_data[x][y][1]
-            for _ in range(8):
-                nx = x + dx[direction]
-                ny = y + dy[direction]
-                if nx >= 0 and ny >= 0 and nx < 4 and ny < 4:
-                    if not (nx == now_x and ny == now_y):
-                        tmp_data[x][y][1] = direction
-                        tmp_data[x][y], tmp_data[nx][ny] = tmp_data[nx][ny], tmp_data[x][y]
-                        break
-                direction = rotate(direction)
+            if smell[i][j][1] > 0:
+                smell[i][j][1] -= 1
 
-def move_shark(tmp_data, now_x, now_y):
+            if array[i][j] != 0:
+                smell[i][j] = [array[i][j], k]
 
-    positions = []
-    direction = tmp_data[now_x][now_y][1]
-    for _ in range(4):
-        now_x += dx[direction]
-        now_y += dy[direction]
-        if now_x >= 0 and now_y >= 0 and now_x < 4 and now_y < 4:
-            if tmp_data[now_x][now_y][0] != -1:
-                positions.append([now_x, now_y])
-    return positions
+def move_sharks():
 
-def dfs(data, now_x, now_y, total):
-    global result
-    tmp_data = deepcopy(data)
+    new_array = [[0]*n for _ in range(n)]
 
-    total += tmp_data[now_x][now_y][0]
-    tmp_data[now_x][now_y][0] = -1
+    for x in range(n):
+        for y in range(n):
+            if array[x][y] != 0:
+                direction = directions[array[x][y]-1]
+                check_move = False
+                # 냄새가 존재하는지 확인
+                for index in range(4):
+                    nx = x + dx[priorities[array[x][y] - 1][direction - 1][index] - 1]
+                    ny = y + dy[priorities[array[x][y] - 1][direction - 1][index] - 1]
+                    if 0 <= nx and nx < n and 0 <= ny and ny < n:
+                        if smell[nx][ny][1] == 0:
 
-    move_fish(tmp_data, now_x, now_y)
+                            # 상어 방향 업데이트
+                            directions[array[x][y] - 1] = priorities[array[x][y] - 1][direction - 1][index]
 
-    positions = move_shark(tmp_data, now_x, now_y)
-    if len(positions) == 0:
-        result = max(result, total)
-        return
+                            if new_array[nx][ny] == 0:
+                                new_array[nx][ny] = array[x][y]
+                            else:
+                                new_array[nx][ny] = min(new_array[nx][ny], array[x][y])
 
-    for position in positions:
-        dfs(tmp_data, position[0], position[1], total)
+                            check_move = True
+                            break
 
-dfs(data, 0, 0, 0)
-print(result)
+                if check_move:
+                    continue
+
+                # 주변에 냄새가 남아 있다면 자신의 내세로 이동
+                for index in range(4):
+                    nx = x + dx[priorities[array[x][y] - 1][direction - 1][index] - 1]
+                    ny = y + dy[priorities[array[x][y] - 1][direction - 1][index] - 1]
+                    if 0 <= nx and nx < n and 0 <= ny and ny < n:
+                        if smell[nx][ny][0] == array[x][y]:
+                            # 상어 방향 업데이트
+                            directions[array[x][y] - 1] = priorities[array[x][y] - 1][direction - 1][index]
+                            new_array[nx][ny] = array[x][y]
+                            break
+
+    return new_array
+
+time = 0
+while True:
+    # 냄세 업데이트
+    update_smell()
+    # 상어 이동 업데이트
+    array = move_sharks()
+
+    time += 1
+
+    #1번 상어 남았는지 체크
+    check = True
+    for i in range(n):
+        for j in range(n):
+            if array[i][j] > 1:
+                check = False
+
+    if check:
+        print(time)
+        break
+
+    if time >= 1000:
+        print(-1)
+        break
