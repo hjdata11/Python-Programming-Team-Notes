@@ -9,29 +9,32 @@ from itertools import combinations
 n, m = map(int, input().split())
 data = [ list(map(int, input().split())) for _ in range(n) ]
 
-chickens = []
-homes = []
-
+result = 1e9
+house = []
+chicken = []
 for i in range(n):
     for j in range(n):
-        if data[i][j] == 2:
-            chickens.append([i, j])
         if data[i][j] == 1:
-            homes.append([i, j])
+            house.append([i, j])
+        if data[i][j] == 2:
+            chicken.append([i, j])
 
-def get_sum(candidate):
+count = 0
+
+# 치킨 거리 계산
+def cal_length(chick):
     S = 0
-    for xh, yh in homes:
-        temp = 1e9
-        for xc, yc in candidate:
-            temp = min(temp, abs(xh-xc)+abs(yh-yc))
-        S += temp
+    for h in house:
+        tmp = 1e9
+        for c in chick:
+            tmp = min(tmp, abs(h[0]-c[0])+abs(h[1]-c[1]))
+        S += tmp
     return S
 
-candidates = list(combinations(chickens, m))
+# 치킨집 선택
+List = list(combinations(chicken, m))
+for chick in List:
+    length = cal_length(chick)
+    result = min(result, length)
 
-mindistance = 1e9
-for candidate in candidates:
-    mindistance = min(mindistance, get_sum(candidate))
-
-print(mindistance)
+print(result)
