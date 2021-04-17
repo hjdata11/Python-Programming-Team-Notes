@@ -5,14 +5,14 @@ import sys
 sys.stdin = open("input.txt", 'r')
 input = sys.stdin.readline
 
-
 n = int(input())
 data = [ list(map(str, input().split())) for _ in range(n) ]
+
 teachers = []
+count = 0
 
-dx = [-1, 0, 1, 0]
-dy = [0, -1, 0, 1]
 
+# 선생님 좌표
 for i in range(n):
     for j in range(n):
         if data[i][j] == 'T':
@@ -59,25 +59,26 @@ def process():
                 return True
     return False
 
-find = False
-# 빈 공간에서 3개를 뽑는 모든 조합 확인
-def dfs(cnt):
-    global find
-    if cnt == 3:
+flag = False
+# 3개 장애물 설치
+def wall(count):
+    global flag
+
+    if count == 3:
         if not process():
-            find = True
+            flag = True
         return
 
     for i in range(n):
         for j in range(n):
             if data[i][j] == 'X':
                 data[i][j] = 'O'
-                dfs(cnt + 1)
+                wall(count + 1)
                 data[i][j] = 'X'
 
-dfs(0)
+wall(0)
 
-if find:
+if flag:
     print('YES')
 else:
     print('NO')
