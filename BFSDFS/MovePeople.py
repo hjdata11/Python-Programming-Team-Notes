@@ -7,59 +7,53 @@ input = sys.stdin.readline
 from collections import deque
 
 n, l, r = map(int, input().split())
-graph = [ list(map(int, input().split())) for _ in range(n) ]
+data = [ list(map(int, input().split())) for _ in range(n) ]
+count = 0
 
 dx = [-1, 0, 1, 0]
 dy = [0, -1, 0, 1]
+# 인구 이동
+def move(x, y, union_index):
 
-# 그룹 확인하고 퍼트리기
-def process(x, y, index):
-    # 연합된 위치들
     united = []
     united.append((x, y))
 
+    union[x][y] = union_index
     q = deque()
     q.append((x, y))
-    # 그룹 인덱스
-    union[x][y] = index
-    # 총 합
-    summary = graph[x][y]
-    # 숫자
-    count = 1
+    S = data[x][y]
+    union_count = 1
 
-    while q :
+    while q:
         x, y = q.popleft()
         for i in range(4):
             nx = x + dx[i]
             ny = y + dy[i]
-            # 연합이 안된 경우
-            if 0 <= nx < n and 0 <= ny < n and union[nx][ny] == -1:
-                if l <= abs(graph[nx][ny] - graph[x][y]) <= r:
-                    q.append((nx, ny))
-                    union[nx][ny] = index
-                    summary += graph[nx][ny]
-                    count += 1
+            if nx >= 0 and nx < n and ny >= 0 and ny < n and union[nx][ny] == -1:
+                if l <= abs(data[nx][ny] - data[x][y]) <= r:
+                    S += data[nx][ny]
+                    union_count += 1
                     united.append((nx, ny))
+                    union[nx][ny] = union_index
+                    q.append((nx, ny))
 
-    # 연합된 위치 제공 후 각 합을 숫자로 나누기
-    for i, j in united:
-        graph[i][j] = summary // count
-    return count
+    for x, y in united:
+        avg = int(S/union_count)
+        data[x][y] = avg
 
-total_count = 0
-# 이동 가능한 나라 체크 더이상 이동할 수 없을 때 까지 반복(그룹)
+# 인구 이동 종료 체크
 while True:
-    union = [[-1] * n for _ in range(n)]
-    index = 0
+    # 연합 종류
+    union = [ [-1] * n for _ in range(n) ]
+    union_index = 0
     for i in range(n):
         for j in range(n):
             if union[i][j] == -1:
-                process(i, j, index)
-                # 그룹 인덱스
-                index += 1
-    # 모든 인구 이동이 끝난 경우
-    if index == n * n:
-        break
-    total_count += 1
+                move(i, j, union_index)
+                union_index += 1
 
-print(total_count)
+    if union_index == n*n:
+        break
+    count += 1
+
+print(count)
