@@ -13,19 +13,23 @@ def solution(words, queries):
     array = [[] for _ in range(10001)]
     reversed_array = [[] for _ in range(10001)]
 
+    # 길이 마다 단어 넣기
     for word in words:
         array[len(word)].append(word)
         reversed_array[len(word)].append(word[::-1])
 
+    # 길이에 대한 단어 정렬
     for i in range(10001):
         array[i].sort()
         reversed_array[i].sort()
 
+    # 해당 길이 단어 사이 개수 세기
     for q in queries:
         if q[0] != "?":
-            res = count_by_range(array[len(q)], q.replace('?', 'a'), q.replace('?', 'z'))
+            nums = count_by_range(array[len(q)], q.replace('?', 'a'), q.replace('?', 'z'))
         else:
-            res = count_by_range(reversed_array[len(q)], q[::-1].replace('?', 'a'), q[::-1].replace('?', 'z'))
+            nums = count_by_range(reversed_array[len(q)], q[::-1].replace('?', 'a'), q[::-1].replace('?', 'z'))
 
-        answer.append(res)
+        answer.append(nums)
+
     return answer
