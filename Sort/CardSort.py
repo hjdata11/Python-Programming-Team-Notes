@@ -9,17 +9,17 @@ import heapq
 n = int(input())
 heap = []
 for i in range(n):
-    data = int(input())
-    heapq.heappush(heap, data)
+    heapq.heappush(heap, int(input()))
 
 result = 0
 
-while len(heap) != 1:
+# 가장 작은 것을 먼저 더하기
+while len(heap) > 1:
     one = heapq.heappop(heap)
     two = heapq.heappop(heap)
 
-    sum_value = one + two
-    result += sum_value
-    heapq.heappush(heap, sum_value)
+    S = one + two
+    result += S
+    heapq.heappush(heap, S)
 
 print(result)
