@@ -1,5 +1,5 @@
 
-# 
+# https://www.acmicpc.net/problem/14502
 
 import sys
 sys.stdin = open("input.txt", 'r')
