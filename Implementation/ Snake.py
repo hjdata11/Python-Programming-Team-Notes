@@ -1,64 +1,67 @@
 
 # https://www.acmicpc.net/problem/3190
 
+import sys
+#sys.stdin = open("input.txt", "r")
+input = sys.stdin.readline
+from collections import deque
+
+dx = [-1, 0, 1, 0]
+dy = [0, 1, 0, -1]
+
 n = int(input())
 k = int(input())
-data = [[0] * (n + 1) for _ in range(n + 1)]
+
+board = [[1] * (n + 2) for _ in range(n + 2)]
+for i in range(n):
+    for j in range(n):
+        board[i + 1][j + 1] = 0
+
+for _ in range(k):
+    i, j = map(int, input().split())
+    board[i][j] = 2
+
+l = int(input())
 info = []
 
-# 사과 정보 표시
-for _ in range(k):
-    x,y = map(int, input().split())
-    data[x][y] = 1
-
-#방향 회전 정보 입력
-l = int(input())
 for _ in range(l):
-    x, c = input().split()
-    info.append((int(x), c))
-
-# 동 남 서 북
-dx = [0, 1, 0, -1]
-dy = [1, 0, -1, 0]
-
-def turn(direction, c):
-    if c == "L":
-        direction = (direction-1) % 4
+    t, d = map(str, input().split())
+    t = int(t)
+    if d == "D":
+        info.append([t, 1])
     else:
-        direction = (direction+1) % 4
-    return direction
+        info.append([t, -1])
 
-def simulate():
+
+def solve():
+    dir = 1
+    q = deque()
     x, y = 1, 1
-    data[x][y] = 2
-    direction = 0
-    time = 0
+    q.append([x, y])
+    board[x][y] = 3
+    answer = 0
     index = 0
-    q = [(x, y)]
+
     while True:
-        nx = x + dx[direction]
-        ny = y + dy[direction]
-        # 벽에 안 붙은 경우
-        if 1 <= nx and nx <= n and 1 <= ny and ny <= n and data[nx][ny] != 2:
-            # 사과 없는 경우
-            if data[nx][ny] == 0:
-                data[nx][ny] = 2
-                q.append((nx, ny))
-                px, py = q.pop(0)
-                data[px][py] = 0
-            # 사과 있는 경우
-            if data[nx][ny] == 1:
-                data[nx][ny] = 2
-                q.append((nx,ny))
+        nx = x + dx[dir]
+        ny = y + dy[dir]
+        answer += 1
+        # 벽 안에있는 경우, 자기 자신이 아닌 경우
+        if nx >= 1 and nx <= n and ny >= 1 and ny <= n and board[nx][ny] != 3:
+            if board[nx][ny] == 0:
+                a, b = q.popleft()
+                board[a][b] = 0
+            q.append([nx, ny])
+            board[nx][ny] = 3
         else:
-            time += 1
             break
         x, y = nx, ny
-        time += 1
-        # 회전
-        if index < l and time == info[index][0]:
-            direction = turn(direction, info[index][1])
-            index += 1
-    return time
 
-print(simulate())
+        if index < l and answer == info[index][0]:
+            dir += info[index][1]
+            dir %= 4
+            index += 1
+
+    return answer
+
+print(solve())
